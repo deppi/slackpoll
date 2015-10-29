@@ -1,11 +1,11 @@
 var hellobot = require('./hellobot');
 var dicebot = require('./dicebot');
-var votebot = require('./votebot');
+//var votebot = require('./votebot');
 var express = require('express');
 var bodyParser = require('body-parser');
 
 var app = express();
-var port = 37139;
+var port = process.env.PORT || 3000;
 
 // body parser middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -25,4 +25,4 @@ app.listen(port, function () {
 
 app.post('/hello', hellobot);
 app.post('/roll', dicebot);
-app.post('/votebot', votebot);
+//app.post('/votebot', votebot);
