@@ -1,4 +1,5 @@
 var hellobot = require('./hellobot');
+var dicebot = require('./dicebot');
 var express = require('express');
 var bodyParser = require('body-parser');
 
@@ -20,3 +21,6 @@ app.use(function (err, req, res, next) {
 app.listen(port, function () {
   console.log('Slack bot listening on port ' + port);
 });
+
+app.post('/hello', hellobot);
+app.post('/roll', dicebot);

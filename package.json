@@ -1,15 +1,16 @@
 {
-	"name": "slackathon",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
-	"scripts": {
-	"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"author": "geoff bremner, johnny li, kevin li",
-	"license": "ISC",
-	"dependencies": {
-		"express": "^4.x.x",
-		"body-parser": "^1.x.x"
-	}
+  "name": "slackathon",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "geoff bremner, johnny li, kevin li",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.x.x",
+    "express": "^4.x.x",
+    "request": "^2.65.0"
+  }
 }
