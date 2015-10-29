@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js PORT=3719 INCOMING_WEBHOOK_DICEBOT_PATH='T0A6N8UG1/B0DEB3NS2/yTwdbPpxdFW0csjehx2xSbcZ"
+    "start": "node app.js PORT=3719 INCOMING_WEBHOOK_DICEBOT_PATH='T0A6N8UG1/B0DEB3NS2/yTwdbPpxdFW0csjehx2xSbcZ'"
   },
   "author": "geoff bremner, johnny li, kevin li",
   "license": "ISC",
