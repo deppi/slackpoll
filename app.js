@@ -1,6 +1,7 @@
 var hellobot = require('./hellobot');
 var dicebot = require('./dicebot');
 var votebot = require('./votebot');
+var votebot = require('./monitor');
 var express = require('express');
 var bodyParser = require('body-parser');
 
@@ -26,3 +27,4 @@ app.listen(port, function () {
 app.post('/hello', hellobot);
 app.post('/roll', dicebot);
 app.post('/vote', votebot);
+app.post('/log', monitor.watchHandler);
