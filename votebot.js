@@ -18,7 +18,7 @@ module.exports = function(req, res, next) {
 			endVote(req, res, next);
 		}
 		else { // vote on a vote
-			enterVote(req, res, next, params);
+			castVote(req, res, next, params);
 		}
 	} else {
 		// send error message back to user if input is bad
@@ -38,11 +38,12 @@ function startVote(req, res, next) {
 	vote.votes = {};
 
 	for (var i = 0; i < voteOptionsLoopText.length; i++) {
-		vote.votes[voteOptionsLoopText[i]] = [];
+		vote.votes[voteOptionsLoopText[i].toLowerCase()] = [];
 	}
 
 	botPayload.text = req.body.user_name + " has started a vote!\n" + questionText + "\nVote with one of the following options:\n" 
-					+ voteOptionsText + "\nVote ID = " + vote.voteID;	botPayload.channel = req.body.channel_id;
+					+ voteOptionsText + "\nVote ID = " + vote.voteID;	
+	botPayload.channel = req.body.channel_id;
 
 	mongodb.MongoClient.connect(url, function(err, db) {
 
@@ -110,11 +111,13 @@ function endVoteHelper(req, res, next, voteID, ownerID, cameFromTimeout) {
 	});
 }
 
-function enterVote(req, res, next, params) {
+function castVote(req, res, next, params) {
 	var voter = req.body.user_id;
 	var splitText = req.body.text.split(' ');
 	var voteID = splitText[0];
 	var voteOption = splitText[1];
+
+	voteOption = voteOption.toLowerCase();
 
 	mongodb.MongoClient.connect(url, function(err, db) {
 		var collection = db.collection('voting');
