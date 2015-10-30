@@ -12,6 +12,8 @@
   "dependencies": {
     "body-parser": "^1.x.x",
     "express": "^4.x.x",
+    "mongodb": "^2.0.47",
+    "node-uuid": "^1.4.3",
     "request": "^2.65.0"
   }
 }
