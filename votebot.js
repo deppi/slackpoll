@@ -4,7 +4,6 @@ var botPayload = {};
 	botPayload.username = 'votebot';
 	botPayload.icon_emoji = ':hand:';
 var mongodb = require('mongodb');
-var assert = require('assert');
 
 var url = 'mongodb://root:index123@ds045684.mongolab.com:45684/mongoslack';
 
@@ -46,12 +45,9 @@ function startVote(req, res, next) {
 					+ voteOptionsText + "\nVote ID = " + vote.voteID;	botPayload.channel = req.body.channel_id;
 
 	mongodb.MongoClient.connect(url, function(err, db) {
-	assert.equal(null, err);
-	console.log("Connected correctly to server");
 
 	var collection = db.collection('voting');
 		collection.insert(vote, function(err, result) {
-			console.log("Inserted documents into the document collection");
 			db.close();
 			send(botPayload, function (error, status, body) {
 				if (error) {
@@ -65,6 +61,10 @@ function startVote(req, res, next) {
 			});
 		});
 	});
+
+	setTimeout(function () {
+
+	} 1000 * 1800);
 }
 
 function endVote(req, res, next) {
@@ -75,14 +75,9 @@ function endVote(req, res, next) {
 	}
 
 	mongodb.MongoClient.connect(url, function(err, db) {
-		assert.equal(null, err);
-		console.log("Connected correctly to server");
 
 		var collection = db.collection('voting');
-		console.log(voteID);
-		console.log(req.body.user_id);
 		collection.find({voteID: voteID, ownerID: req.body.user_id}).toArray(function(err, doc) {
-			console.log(doc);
 			if (doc.length === 0) {
 				db.close();
 				return res.status(200).send('Please double check your vote ID. You cannot end a vote you did not start.');
@@ -118,10 +113,8 @@ function enterVote(req, res, next, params) {
 	var voteOption = splitText[1];
 
 	mongodb.MongoClient.connect(url, function(err, db) {
-		assert.equal(null, err);
 		var collection = db.collection('voting');
 		collection.find({voteID: voteID}).toArray(function(err, doc) {
-			console.log(doc);
 			if (doc.length === 0) {
 				db.close();
 				return res.status(200).send('Please double check your vote ID. You cannot vote on a vote that does not exist');
@@ -131,9 +124,7 @@ function enterVote(req, res, next, params) {
 					return res.status(200).send('Invalid vote option');
 				} 
 				for (var loopVoteOption in vote.votes) {
-					console.log(loopVoteOption);
 					for (var i = 0; i < vote.votes[loopVoteOption].length; i++) {
-						console.log(vote.votes[loopVoteOption]);
 						if (voter === vote.votes[loopVoteOption][i]) {
 							return res.status(200).send('You already voted: ' + loopVoteOption);
 						}
