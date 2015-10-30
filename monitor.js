@@ -21,8 +21,33 @@ var logFileConfigs = {
 	}
 };
 
-var watchSearhaack = function () {
+var watchSearhaack = function (data) {
+	var parsedJSON = getJSON(data);
+	var payload = {};
 
+	payload.username = 'AlertBot';
+	payload.icon_emoji = ':rotating_light:';
+	console.log(parsedJSON);
+	if (parsedJSON) {
+		handleJSON(parsedJSON, payload);
+		return;
+	}
+
+	if (reqRegex.test(data)) {
+		var parsedData = data.split(' ');
+		var reqID = parsedData[9].replace(':', '');
+		// console.log("Parse req: ", parsedData);
+		console.log("REQ ID: ", reqID);
+		reqMap[reqID] = {
+			ipAddr: parsedData[12],
+			route: parsedData[10],
+			time: parsedData.slice(0, 6).join(' ')
+		};
+	} else if (resRegex.test(data)) {
+		handleResponse(data, payload);
+	} else {
+		console.log("LOG: ", data);
+	}
 };
 
 var watchViperError = function () {
@@ -87,38 +112,36 @@ var handleJSON = function (json, payload) {
 };
 
 exports.watchHandler = function (req, res, next) {
-	console.log(req);
-	tail = new Tail(fileToTail, lineSeparator);
-	tail.on("line", function (data) {
-		var parsedJSON = getJSON(data);
-		var payload = {};
+	var params,
+		logFileID,
+		logging;
 
-		payload.username = 'AlertBot';
-		payload.icon_emoji = ':rotating_light:';
-		console.log(parsedJSON);
-		if (parsedJSON) {
-			handleJSON(parsedJSON, payload);
-			return;
-		}
+	if (!req.body.text) {
+		return res.status(200).send('correct syntax hint');
+	}
 
-		if (reqRegex.test(data)) {
-			var parsedData = data.split(' ');
-			var reqID = parsedData[9].replace(':', '');
-			// console.log("Parse req: ", parsedData);
-			console.log("REQ ID: ", reqID);
-			reqMap[reqID] = {
-				ipAddr: parsedData[12],
-				route: parsedData[10],
-				time: parsedData.slice(0, 6).join(' ')
-			};
-		} else if (resRegex.test(data)) {
-			handleResponse(data, payload);
+	params = req.body.text.split(' ');
+	logFileID = params[0];
+	logging = (params[1] && params[1] === 'stop') ? false : true;
+
+	if (!logFileConfigs.hasOwnProperty(logFileID)) {
+		return res.status(200).send('logFileID not in config');
+	}
+
+	if (logFileConfigs.tailInstance === undefined) {
+		logFileConfigs.tailInstance = new Tail(logFileConfigs.fileName);
+		if (logFileConfigs.handler === undefined) {
+			logFileConfigs.tailInstance.on("line", defaultHandler);
 		} else {
-			console.log("LOG: ", data);
+			logFileConfigs.tailInstance.on("line", logFileConfigs.handler);
 		}
-	});
+	}
 
-	tail.on("error", function (err) {
-		console.log('ERROR: ', error);
-	});
+	if (logging) {
+		logFileConfigs.tailInstance.watch();
+		res.status(200).send('Start tailing: ' + logFileConfigs.fileName)
+	} else {
+		logFileConfigs.tailInstance.unwatch();
+		res.status(200).send('Stop tailing: ' + logFileConfigs.fileName)
+	}
 };

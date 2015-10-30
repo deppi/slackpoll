@@ -1,13 +1,12 @@
 var hellobot = require('./hellobot');
 var dicebot = require('./dicebot');
 var votebot = require('./votebot');
-var votebot = require('./monitor');
+var monitor = require('./monitor');
 var express = require('express');
 var bodyParser = require('body-parser');
 
 var app = express();
 var port = process.env.PORT || 3000;
-
 // body parser middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 
