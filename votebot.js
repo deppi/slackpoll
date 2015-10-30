@@ -7,7 +7,7 @@ var mongodb = require('mongodb');
 
 var url = 'mongodb://root:index123@ds045684.mongolab.com:45684/mongoslack';
 
-module.exports = function(req, res, next) {
+module.exports.postHandler = function(req, res, next) {
 	if (req.body.text) {
 		var params = req.body.text.split(' ');
 
@@ -22,15 +22,30 @@ module.exports = function(req, res, next) {
 		}
 	} else {
 		// send error message back to user if input is bad
-		return res.status(200).send('correct syntax hint');
+		return res.status(200).send("Try /vote start 'question?' [vote option1, vote option2, ...]");
 	}
+}
+
+module.exports.getHandler = function (req, res, next) {
+    mongodb.MongoClient.connect(url, function(err, db) {
+		var collection = db.collection('voting');
+		collection.find({voteID: req.params.voteID}).toArray(function(err, doc) {
+			if (err) {
+				return res.status(200).send('No vote ID found');
+			}
+			res.header("Access-Control-Allow-Origin", "*");
+		    res.header('Access-Control-Allow-Methods', 'GET');
+		    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+			return res.status(200).send(JSON.stringify(doc[0]));
+		});
+	});
 }
 
 function startVote(req, res, next) {
 	// write response message and add to payload
 	var questionText = req.body.text.match(/'([^']+)'/)[1];
 	var voteOptionsText = req.body.text.match(/\[(.*?)\]/)[1];
-	var voteOptionsLoopText = req.body.text.match(/\[(.*?)\]/)[1].split(' ');
+	var voteOptionsLoopText = req.body.text.match(/\[(.*?)\]/)[1].split(', ');
 	var vote = {};
 	vote.voteID = uuid.v4();
 	vote.questionText = questionText;
@@ -41,8 +56,9 @@ function startVote(req, res, next) {
 		vote.votes[voteOptionsLoopText[i].toLowerCase()] = [];
 	}
 
-	botPayload.text = req.body.user_name + " has started a vote!\n" + questionText + "\nVote with one of the following options:\n" 
-					+ voteOptionsText + "\nVote ID = " + vote.voteID;	
+	botPayload.text = req.body.user_name + " has started a <http://localhost:8000/app/index.html#/vote/voteHash/" + vote.voteID + "|vote>!\n" + 
+					questionText + "\nVote with one of the following options:\n" 
+					+ voteOptionsText + "\n/vote  " + vote.voteID + " <your_vote>";	
 	botPayload.channel = req.body.channel_id;
 
 	mongodb.MongoClient.connect(url, function(err, db) {
@@ -60,7 +76,7 @@ function startVote(req, res, next) {
 					setTimeout(function () {
 						endVoteHelper(req, res, next, vote.voteID, vote.ownerID, true);
 					}, 1000 * 1800);
-					return res.status(200).end();
+					return res.status(200).send('Use "/vote end ' + vote.voteID + '" to end the vote.');
 				}
 			});
 		});
@@ -145,6 +161,10 @@ function castVote(req, res, next, params) {
 			}
 		});
 	});
+}
+
+function getVotes(voteID) {
+
 }
 
 function send (payload, callback) {
