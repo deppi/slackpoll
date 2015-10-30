@@ -61,10 +61,6 @@ function startVote(req, res, next) {
 			});
 		});
 	});
-
-	setTimeout(function () {
-
-	} 1000 * 1800);
 }
 
 function endVote(req, res, next) {
