@@ -56,6 +56,9 @@ function startVote(req, res, next) {
 				// inform user that our Incoming WebHook failed
 					return next(new Error('Incoming WebHook: ' + status + ' ' + body));
 				} else {
+					setTimeout(function () {
+						endVoteHelper(req, res, next, vote.voteID, vote.ownerID, true);
+					}, 1000 * 1800);
 					return res.status(200).end();
 				}
 			});
@@ -65,17 +68,22 @@ function startVote(req, res, next) {
 
 function endVote(req, res, next) {
 	var voteID = req.body.text.split(' ')[1] || "";
+	var ownerID = req.body.user_id;
 
 	if (voteID === "") {
 		return res.status(200).send('Please use /vote end {vote_ID}');
 	}
 
-	mongodb.MongoClient.connect(url, function(err, db) {
+	endVoteHelper(req, res, next, voteID, ownerID);
+}
 
+function endVoteHelper(req, res, next, voteID, ownerID, cameFromTimeout) {
+	mongodb.MongoClient.connect(url, function(err, db) {
 		var collection = db.collection('voting');
-		collection.find({voteID: voteID, ownerID: req.body.user_id}).toArray(function(err, doc) {
+		collection.find({voteID: voteID, ownerID: ownerID}).toArray(function(err, doc) {
 			if (doc.length === 0) {
 				db.close();
+				if (cameFromTimeout) return res.status(200).end();
 				return res.status(200).send('Please double check your vote ID. You cannot end a vote you did not start.');
 			} else {
 				collection.deleteOne({voteID: voteID});
