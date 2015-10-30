@@ -131,7 +131,8 @@ function castVote(req, res, next, params) {
 	var voter = req.body.user_id;
 	var splitText = req.body.text.split(' ');
 	var voteID = splitText[0];
-	var voteOption = splitText[1];
+	splitText.shift();
+	var voteOption = splitText.join(' '); // gives you the input minus the hash
 
 	voteOption = voteOption.toLowerCase();
 
@@ -161,10 +162,6 @@ function castVote(req, res, next, params) {
 			}
 		});
 	});
-}
-
-function getVotes(voteID) {
-
 }
 
 function send (payload, callback) {
