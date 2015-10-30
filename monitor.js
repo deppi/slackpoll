@@ -128,20 +128,22 @@ exports.watchHandler = function (req, res, next) {
 		return res.status(200).send('logFileID not in config');
 	}
 
-	if (logFileConfigs.tailInstance === undefined) {
-		logFileConfigs.tailInstance = new Tail(logFileConfigs.fileName);
-		if (logFileConfigs.handler === undefined) {
-			logFileConfigs.tailInstance.on("line", defaultHandler);
+	logFileConfig = logFileConfigs[logFileID];
+
+	if (logFileConfig.tailInstance === undefined) {
+		logFileConfig.tailInstance = new Tail(logFileConfig.fileName);
+		if (logFileConfig.handler === undefined) {
+			logFileConfig.tailInstance.on("line", defaultHandler);
 		} else {
-			logFileConfigs.tailInstance.on("line", logFileConfigs.handler);
+			logFileConfig.tailInstance.on("line", logFileConfig.handler);
 		}
 	}
 
 	if (logging) {
-		logFileConfigs.tailInstance.watch();
-		res.status(200).send('Start tailing: ' + logFileConfigs.fileName)
+		logFileConfig.tailInstance.watch();
+		res.status(200).send('Start tailing: ' + logFileConfig.fileName);
 	} else {
-		logFileConfigs.tailInstance.unwatch();
-		res.status(200).send('Stop tailing: ' + logFileConfigs.fileName)
+		logFileConfig.tailInstance.unwatch();
+		res.status(200).send('Stop tailing: ' + logFileConfig.fileName);
 	}
 };
