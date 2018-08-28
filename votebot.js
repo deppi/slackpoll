@@ -5,7 +5,7 @@ var botPayload = {};
 	botPayload.icon_emoji = ':hand:';
 var mongodb = require('mongodb');
 
-var url = 'mongodb://root:index123@ds045684.mongolab.com:45684/mongoslack';
+var url = process.env.MONGO_URL;
 
 module.exports.postHandler = function(req, res, next) {
 	if (req.body.text) {
@@ -166,7 +166,7 @@ function castVote(req, res, next, params) {
 
 function send (payload, callback) {
 	var path = process.env.INCOMING_WEBHOOK_PATH;
-	var uri = 'https://hooks.slack.com/services/' + 'T0A6N8UG1/B0DEB3NS2/yTwdbPpxdFW0csjehx2xSbcZ';
+	var uri = process.env.SLACK_URI;
 
 	request({
 		uri: uri,
