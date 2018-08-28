@@ -1,6 +1,5 @@
 var Tail = require('tail').Tail;
 var request = require('request');
-var fileToTail = '//1.1.10.242/guiapp/opt/searhaack/log/searhaack.log';
 var lineSeparator;
 var reqRegex = new RegExp("Request");
 var resRegex = new RegExp("response");
@@ -8,13 +7,13 @@ var reqMap = {};
 
 var logFileConfigs = {
 	'viper-error': {
-		fileName: '//1.1.10.240/gui/opt/viper/logs/error.log',
+		fileName: process.env.VIPER_ERROR_LOG,
 		handler: watchViperError,
 		logging: false,
 		tailInstance: undefined
 	},
 	'searhaack': {
-		fileName: '//1.1.10.242/guiapp/opt/searhaack/log/searhaack.log',
+		fileName: process.env.SEARHAACK_LOG,
 		handler: watchSearhaack,
 		logging: false,
 		tailInstance: undefined
@@ -75,7 +74,7 @@ var handleResponse = function (data, payload) {
 
 var send = function (payload) {
 	var path = process.env.INCOMING_WEBHOOK_PATH;
-	var uri = 'https://hooks.slack.com/services/' + 'T0A6N8UG1/B0DEB3NS2/yTwdbPpxdFW0csjehx2xSbcZ';
+	var uri = process.env.SLACK_URI
 
 	request({
 		uri: uri,
